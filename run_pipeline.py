@@ -20,8 +20,13 @@ After running, start the Flask app with:
 ===================================================================
 """
 
-import os
 import sys
+# Ensure standard streams support UTF-8 on Windows to prevent UnicodeEncodeError with emojis
+if sys.platform.startswith('win'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
+import os
 
 # Add project root to path so we can import our modules
 project_root = os.path.dirname(os.path.abspath(__file__))

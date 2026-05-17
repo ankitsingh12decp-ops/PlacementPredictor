@@ -18,6 +18,12 @@ ROUTES:
 ===================================================================
 """
 
+import sys
+# Ensure standard streams support UTF-8 on Windows to prevent UnicodeEncodeError with emojis
+if sys.platform.startswith('win'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+
 import os
 from flask import Flask, render_template, request
 from src.predict import load_model_and_scaler, make_prediction
