@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered Student Placement Prediction System. Predict your placement chances based on CGPA, skills, and more.">
+    <title>Student Placement Predictor | AI-Powered</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Background animated shapes -->
+    <div class="bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">🎓</span>
+                <h1>Placement Predictor</h1>
+            </div>
+            <p class="subtitle">AI-powered prediction system using Machine Learning</p>
+        </header>
+
+        <!-- Prediction Form -->
+        <form action="/predict" method="POST" class="form-card" id="prediction-form">
+            <h2 class="form-title">Enter Your Details</h2>
+
+            <div class="form-grid">
+                <!-- CGPA -->
+                <div class="form-group">
+                    <label for="cgpa">📚 CGPA</label>
+                    <input type="number" id="cgpa" name="cgpa" step="0.01" min="4" max="10"
+                           placeholder="e.g. 8.5" required
+                           value="{{ inputs.cgpa if inputs else '' }}">
+                    <span class="hint">Range: 4.0 – 10.0</span>
+                </div>
+
+                <!-- IQ -->
+                <div class="form-group">
+                    <label for="iq">🧠 IQ Score</label>
+                    <input type="number" id="iq" name="iq" min="80" max="140"
+                           placeholder="e.g. 110" required
+                           value="{{ inputs.iq|int if inputs else '' }}">
+                    <span class="hint">Range: 80 – 140</span>
+                </div>
+
+                <!-- Communication Skill -->
+                <div class="form-group">
+                    <label for="communication_skill">🗣️ Communication</label>
+                    <input type="number" id="communication_skill" name="communication_skill"
+                           min="1" max="10" placeholder="e.g. 7" required
+                           value="{{ inputs.communication_skill|int if inputs else '' }}">
+                    <span class="hint">Rate: 1 – 10</span>
+                </div>
+
+                <!-- Internships -->
+                <div class="form-group">
+                    <label for="internships">💼 Internships</label>
+                    <input type="number" id="internships" name="internships"
+                           min="0" max="10" placeholder="e.g. 2" required
+                           value="{{ inputs.internships|int if inputs else '' }}">
+                    <span class="hint">Count: 0 – 10</span>
+                </div>
+
+                <!-- Projects -->
+                <div class="form-group">
+                    <label for="projects">🛠️ Projects</label>
+                    <input type="number" id="projects" name="projects"
+                           min="0" max="15" placeholder="e.g. 3" required
+                           value="{{ inputs.projects|int if inputs else '' }}">
+                    <span class="hint">Count: 0 – 15</span>
+                </div>
+
+                <!-- Coding Skill -->
+                <div class="form-group">
+                    <label for="coding_skill">💻 Coding Skill</label>
+                    <input type="number" id="coding_skill" name="coding_skill"
+                           min="1" max="10" placeholder="e.g. 8" required
+                           value="{{ inputs.coding_skill|int if inputs else '' }}">
+                    <span class="hint">Rate: 1 – 10</span>
+                </div>
+
+                <!-- Attendance -->
+                <div class="form-group">
+                    <label for="attendance">📅 Attendance %</label>
+                    <input type="number" id="attendance" name="attendance" step="0.1"
+                           min="0" max="100" placeholder="e.g. 85" required
+                           value="{{ inputs.attendance if inputs else '' }}">
+                    <span class="hint">Percentage: 0 – 100</span>
+                </div>
+
+                <!-- Aptitude Score -->
+                <div class="form-group">
+                    <label for="aptitude_score">📝 Aptitude Score</label>
+                    <input type="number" id="aptitude_score" name="aptitude_score" step="0.1"
+                           min="0" max="100" placeholder="e.g. 72" required
+                           value="{{ inputs.aptitude_score if inputs else '' }}">
+                    <span class="hint">Score: 0 – 100</span>
+                </div>
+
+                <!-- Logical Reasoning -->
+                <div class="form-group">
+                    <label for="logical_reasoning">🧩 Logical Reasoning</label>
+                    <input type="number" id="logical_reasoning" name="logical_reasoning" step="0.1"
+                           min="0" max="100" placeholder="e.g. 68" required
+                           value="{{ inputs.logical_reasoning if inputs else '' }}">
+                    <span class="hint">Score: 0 – 100</span>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-predict" id="submit-btn">
+                <span class="btn-text">🔮 Predict Placement</span>
+                <span class="btn-shimmer"></span>
+            </button>
+        </form>
+
+        <!-- Prediction Result -->
+        {% if prediction %}
+        <div class="result-card {{ 'result-placed' if prediction.prediction == 1 else 'result-not-placed' }}"
+             id="result-section">
+            <div class="result-icon">
+                {% if prediction.prediction == 1 %}
+                    🎉
+                {% elif prediction.prediction == 0 %}
+                    😔
+                {% else %}
+                    ⚠️
+                {% endif %}
+            </div>
+            <h2 class="result-label">{{ prediction.label }}</h2>
+
+            {% if prediction.prediction >= 0 %}
+            <div class="probability-bar-container">
+                <div class="probability-label">Confidence</div>
+                <div class="probability-bar">
+                    <div class="probability-fill"
+                         style="width: {{ (prediction.probability * 100)|round(1) }}%">
+                    </div>
+                </div>
+                <div class="probability-value">{{ (prediction.probability * 100)|round(1) }}%</div>
+            </div>
+
+            <p class="result-description">
+                {% if prediction.prediction == 1 %}
+                    Based on your profile, the model predicts you have a <strong>strong chance</strong>
+                    of getting placed. Keep up the great work!
+                {% else %}
+                    Don't worry! Focus on improving your skills, doing more projects,
+                    and gaining internship experience to boost your chances.
+                {% endif %}
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Built with 🤖 Machine Learning & Flask | Student Placement Prediction System</p>
+        </footer>
+    </div>
+
+    <script>
+        // Smooth scroll to result after prediction
+        const result = document.getElementById('result-section');
+        if (result) {
+            result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            result.classList.add('animate-in');
+        }
+
+        // Add input focus effects
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+    </script>
+</body>
+</html>
